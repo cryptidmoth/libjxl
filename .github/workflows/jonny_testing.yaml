@@ -9,7 +9,7 @@
 # branches (v*.*.x), and when creating a release in GitHub.
 #
 # In the GitHub release case, in addition to build the release binaries it also
-# uploads the binaries to the given release automatically.
+# uploads the binaries to the given release automatically. 
 
 name: Jonny quicktest
 on:
