@@ -116,7 +116,9 @@ jobs:
 
     - name: Checkout source code
       uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
+      with:
+        persist-credentials: false
+        
     - name: Get Cached Git Submodules
       id: cache-submodules
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
@@ -134,12 +136,6 @@ jobs:
       run: |
         git submodule update --init --recursive --no-fetch
     
-    - name: Build
-      shell: 'bash'
-      run: |
-        set -x
-        cmake --build build --config ${BUILD_TYPE}
-
     - name: Configure
       shell: 'bash'
       run: |
@@ -161,6 +157,11 @@ jobs:
           -DX_VCPKG_APPLOCAL_DEPS_INSTALL=${{ matrix.static == 'OFF' && 'ON' || 'OFF' }} \
         #
     
+    - name: Build
+      shell: 'bash'
+      run: |
+        set -x
+        cmake --build build --config ${BUILD_TYPE}
    
     - name: Install
       shell: 'bash'
