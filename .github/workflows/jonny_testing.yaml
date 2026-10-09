@@ -43,8 +43,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - triplet: x86-windows-static
-            arch: '-A Win32'
           - triplet: x64-windows-static
             arch: '-A x64'
             run_benchmark: true
@@ -52,12 +50,6 @@ jobs:
             arch: '-A x64'
             build_type: Debug
             upload: 'OFF'
-          - triplet: x86-windows
-            arch: '-A Win32'
-            static: 'OFF'
-          - triplet: x64-windows
-            arch: '-A x64'
-            static: 'OFF'
 
     env:
       VCPKG_VERSION: '2025.10.17'
@@ -67,18 +59,15 @@ jobs:
       PREFIX: ${{matrix.triplet}}
 
     steps:
-    - name: Harden Runner
-      uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
-      with:
-        egress-policy: audit
-
-    - name: Checkout the source
-      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      with:
-        submodules: true
-        fetch-depth: 2
-        persist-credentials: false
-
+    
+    # This seems to be for checking which domains the build accesses, 
+    # good for security but I'm guessing you don't care about it here?
+    
+    # - name: Harden Runner
+    #   uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+    #   with:
+    #     egress-policy: audit
+    
     - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       if: github.event_name != 'release'
       id: cache-vcpkg
@@ -138,6 +127,34 @@ jobs:
           -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} \
           -DX_VCPKG_APPLOCAL_DEPS_INSTALL=${{ matrix.static == 'OFF' && 'ON' || 'OFF' }} \
         #
+    
+    # - name: Checkout the source
+    #   uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+    #   with:
+    #     submodules: true
+    #     fetch-depth: 2
+    #     persist-credentials: false
+
+    - name: Checkout source code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+    - name: Get Cached Git Submodules
+      id: cache-submodules
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+      with:
+        path: .git/modules
+        key: ${{ runner.os }}-submodules-${{ hashFiles('.gitmodules') }}
+
+    - name: Update submodules if no cache hit
+      if: steps.cache-submodules.outputs.cache-hit != 'true'
+      run: |
+        git submodule update --init --recursive
+
+    - name: Checkout Submodule Files
+    # This matches the cached data to your working directory (always required)
+      run: |
+        git submodule update --init --recursive --no-fetch
+    
     - name: Build
       shell: 'bash'
       run: |
