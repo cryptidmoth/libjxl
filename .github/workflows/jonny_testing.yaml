@@ -107,28 +107,7 @@ jobs:
           pkgconf \
         #
 
-    - name: Configure
-      shell: 'bash'
-      run: |
-        set -x
-        mkdir build
-        cmake -Bbuild -H. ${{ matrix.arch }} -T ClangCL \
-          -DJPEGXL_STATIC=${{ matrix.static || 'ON'}} \
-          -DJPEGXL_ENABLE_TOOLS='ON' \
-          -DBUILD_TESTING=OFF \
-          -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
-          -DCMAKE_INSTALL_PREFIX=`pwd`/${PREFIX} \
-          -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake \
-          -DJPEGXL_ENABLE_OPENEXR=OFF \
-          -DJPEGXL_ENABLE_PLUGINS=OFF \
-          -DJPEGXL_ENABLE_TCMALLOC=OFF \
-          -DJPEGXL_ENABLE_VIEWERS=OFF \
-          -DJPEGXL_ENABLE_DEVTOOLS='ON' \
-          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} \
-          -DX_VCPKG_APPLOCAL_DEPS_INSTALL=${{ matrix.static == 'OFF' && 'ON' || 'OFF' }} \
-        #
-    
-    # - name: Checkout the source
+   # - name: Checkout the source
     #   uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
     #   with:
     #     submodules: true
@@ -160,6 +139,29 @@ jobs:
       run: |
         set -x
         cmake --build build --config ${BUILD_TYPE}
+
+    - name: Configure
+      shell: 'bash'
+      run: |
+        set -x
+        mkdir build
+        cmake -Bbuild -H. ${{ matrix.arch }} -T ClangCL \
+          -DJPEGXL_STATIC=${{ matrix.static || 'ON'}} \
+          -DJPEGXL_ENABLE_TOOLS='ON' \
+          -DBUILD_TESTING=OFF \
+          -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+          -DCMAKE_INSTALL_PREFIX=`pwd`/${PREFIX} \
+          -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake \
+          -DJPEGXL_ENABLE_OPENEXR=OFF \
+          -DJPEGXL_ENABLE_PLUGINS=OFF \
+          -DJPEGXL_ENABLE_TCMALLOC=OFF \
+          -DJPEGXL_ENABLE_VIEWERS=OFF \
+          -DJPEGXL_ENABLE_DEVTOOLS='ON' \
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} \
+          -DX_VCPKG_APPLOCAL_DEPS_INSTALL=${{ matrix.static == 'OFF' && 'ON' || 'OFF' }} \
+        #
+    
+   
     - name: Install
       shell: 'bash'
       run: |
