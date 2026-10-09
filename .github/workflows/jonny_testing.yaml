@@ -219,7 +219,7 @@ jobs:
   # Keep in sync with `publish_release_assets` workflow.
   dry_publish_release_assets:
     name: Publish release assets (dry run)
-    needs: [ubuntu_static_x86_64, release_ubuntu_pkg, windows_build]
+    needs: [windows_build]
     if: github.event_name != 'release'
     runs-on: [ubuntu-latest]
 
